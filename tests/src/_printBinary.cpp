@@ -63,7 +63,7 @@ void testNegativeTwo()
 	std::cout << "[+] Success testNegativeTwo\n";
 }
 
-int main(void)
+void _printBinary()
 {
 	testZero();
 	testOne();
@@ -71,6 +71,4 @@ int main(void)
 	testBigNum();
 	testNegativeOne();
 	testNegativeTwo();
-
-	return (0);
 }

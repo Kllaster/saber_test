@@ -1,5 +1,5 @@
-#ifndef SABER_H
-# define SABER_H
+#ifndef SABER_HPP
+# define SABER_HPP
 
 # include <iostream>
 
@@ -7,5 +7,7 @@
 
 std::string getBinaryString(int num);
 void printBinary(int num);
+
+void removeDups(char *str);
 
 #endif

@@ -23,7 +23,8 @@ TESTS_DIR		= tests
 BUILD_DIR		= build
 INC_DIR			= include
 
-SRCS			= src/print_binary.cpp\
+SRCS			= src/printBinary.cpp\
+                  src/removeDups.cpp\
 
 OBJS			= $(subst $(SRC_DIR), $(BUILD_DIR), $(SRCS:%.cpp=%.o))
 NAME			:= $(addprefix $(BIN_DIR)/, $(NAME))
@@ -31,13 +32,13 @@ DEPS			= $(OBJS:.o=.d)
 VPATH			= $(SRC_DIR):$(INC_DIR):$(BUILD_DIR)
 
 TESTS_SRC_DIR = $(TESTS_DIR)/$(SRC_DIR)
+TESTS_INC_DIR = $(TESTS_DIR)/$(INC_DIR)
 TESTS_SRCS = $(shell find $(TESTS_SRC_DIR) -name '*.cpp')
 TESTS_BUILD_DIR = $(TESTS_DIR)/$(BUILD_DIR)
-TESTS_BIN_DIR = $(TESTS_DIR)/bin
-TESTS_BIN_PATH = $(TESTS_BIN_DIR)/test_
+TESTS_OBJS = $(subst $(TESTS_SRC_DIR), $(TESTS_BUILD_DIR), $(TESTS_SRCS:%.cpp=%.o))
 
-TESTS_OBJS := $(subst $(TESTS_SRC_DIR), $(TESTS_BUILD_DIR), $(TESTS_SRCS:%.cpp=%.o))
-TESTS_BINS := $(subst $(TESTS_BUILD_DIR)/, $(TESTS_BIN_PATH), $(TESTS_OBJS:%.o=%))
+TESTS_BIN_DIR = $(TESTS_DIR)/bin
+TESTS_BIN = $(TESTS_BIN_DIR)/exec_tests
 
 all:			$(NAME)
 
@@ -50,33 +51,33 @@ $(BUILD_DIR)/%.o:  $(SRC_DIR)/%.cpp
 				@if [ ! -d $(dir $@) ] ; then $(MKDIR) $(dir $@); fi
 				$(CC) $(CFLAGS) -I $(INC_DIR) -c $< -o $@
 
-test:			$(TESTS_BINS) $(TESTS_OBJS) $(NAME)
+tests:			$(TESTS_BIN) $(TESTS_OBJS) $(NAME)
 				./$<
 
-test_leaks:		$(TESTS_BINS) $(TESTS_OBJS) $(NAME)
+tests_leaks:	$(TESTS_BIN) $(NAME)
 				leaks --atExit -- ./$<
 
 $(TESTS_BUILD_DIR)/%.o: $(TESTS_SRC_DIR)/%.cpp
 				@if [ ! -d $(dir $@) ] ; then $(MKDIR) $(dir $@); fi
-				$(CC) $(CFLAGS) -I $(INC_DIR) -c $< -o $@
+				$(CC) $(CFLAGS) -I $(INC_DIR) -I $(TESTS_INC_DIR) -c $< -o $@
 
-$(TESTS_BIN_PATH)%:	$(TESTS_BUILD_DIR)/%.o $(OBJS)
+$(TESTS_BIN): $(TESTS_OBJS)
 				@if [ ! -d $(dir $@) ] ; then $(MKDIR) $(dir $@); fi
-				$(CC) $(CFLAGS) -I $(INC_DIR) $(OBJS) $< $(NAME) -o $@
+				$(CC) $(CFLAGS) -I $(INC_DIR) -I $(TESTS_INC_DIR) $(TESTS_OBJS) $(NAME) -o $@
 
-test_clean:
+tests_clean:
 				$(RM) $(TESTS_OBJS)
 				$(RM) -rd $(TESTS_BUILD_DIR)
 
-test_fclean:	test_clean
+tests_fclean:	tests_clean
 				$(RM) $(TESTS_BINS)
 				$(RM) -rd $(TESTS_BIN_DIR)
 
-clean:			test_clean
+clean:			tests_clean
 				$(RM) $(OBJS)
 				$(RM) $(DEPS)
 
-fclean:			clean test_fclean
+fclean:			clean tests_fclean
 				$(RM) -rd $(BUILD_DIR)
 				$(RM) $(NAME)
 
@@ -85,4 +86,4 @@ re:
 				$(MAKE) all
 
 -include $(DEPS)
-.PHONY:			all, clean, fclean, re
+.PHONY:			all, clean, fclean, re, tests, tests_leaks, tests_clean. tests_fclean
