@@ -5,5 +5,6 @@
 
 void _removeDups();
 void _printBinary();
+void _List();
 
 #endif

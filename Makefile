@@ -14,7 +14,7 @@ endif
 
 WARNING_FLAGS   = -Wall -Wextra -Werror -Wpointer-arith -Wfloat-equal -fpermissive
 PROTECT_FLAGS	= -fno-exceptions -fstack-protector-all
-COMMON_FLAGS	= -std=c++98 -MMD -pipe
+COMMON_FLAGS	= -std=c++11 -MMD -pipe
 CFLAGS			= $(COMMON_FLAGS) $(DEBUG_FLAGS) $(PROTECT_FLAGS) $(WARNING_FLAGS)
 
 BIN_DIR			= bin
@@ -25,6 +25,7 @@ INC_DIR			= include
 
 SRCS			= src/printBinary.cpp\
                   src/removeDups.cpp\
+                  src/List.cpp\
 
 OBJS			= $(subst $(SRC_DIR), $(BUILD_DIR), $(SRCS:%.cpp=%.o))
 NAME			:= $(addprefix $(BIN_DIR)/, $(NAME))
@@ -61,7 +62,7 @@ $(TESTS_BUILD_DIR)/%.o: $(TESTS_SRC_DIR)/%.cpp
 				@if [ ! -d $(dir $@) ] ; then $(MKDIR) $(dir $@); fi
 				$(CC) $(CFLAGS) -I $(INC_DIR) -I $(TESTS_INC_DIR) -c $< -o $@
 
-$(TESTS_BIN): $(TESTS_OBJS)
+$(TESTS_BIN):   $(TESTS_OBJS) $(NAME)
 				@if [ ! -d $(dir $@) ] ; then $(MKDIR) $(dir $@); fi
 				$(CC) $(CFLAGS) -I $(INC_DIR) -I $(TESTS_INC_DIR) $(TESTS_OBJS) $(NAME) -o $@
 
